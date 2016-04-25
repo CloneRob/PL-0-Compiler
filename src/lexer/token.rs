@@ -1,4 +1,21 @@
+pub enum Ident{
+    VAR(String),
+    CONST(String),
+    PROCEDURE(String),
+}
+
+impl Ident {
+    pub fn can_continue(c: &char) -> bool {
+        if c.is_numeric() && c.is_alphabetic() {
+            true
+        } else {
+            false
+        }
+    }
+}
 pub enum Token {
+    Identifier(Ident),
+
     Add,
     Sub,
     Mul,
@@ -7,8 +24,25 @@ pub enum Token {
     LParen,
     RParen,
 
-    Gr,
+    If,
+    Then,
+    While,
+    Do,
+
+    Begin,
+    End,
+
+    Call,
+
+    Gt,
     Ge,
-    Ls,
+    Lt,
     Le,
+    Eq,
+    EqEq,
+    Ne,
+    And,
+    AndAnd,
+    Or,
+    OrOr,
 }

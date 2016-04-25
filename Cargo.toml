@@ -1,6 +1,8 @@
 [package]
-name = "PL0-Compiler"
+name = "pl0-compiler"
 version = "0.1.0"
 authors = ["CloneRob <ropamen@gmail.com>"]
 
 [dependencies]
+regex = "0.1.68"
+regex_macros = "0.1.35"
