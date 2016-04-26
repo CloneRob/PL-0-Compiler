@@ -1,6 +1,5 @@
 #![feature(plugin)]
 #![plugin(regex_macros)]
-#![feature(str_char)]
 #[allow(dead_code)]
 extern crate regex;
 

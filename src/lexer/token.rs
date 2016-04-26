@@ -1,7 +1,10 @@
+use std::fmt;
+
 pub enum Ident{
-    VAR(String),
-    CONST(String),
-    PROCEDURE(String),
+    VAR,
+    CONST,
+    PROCEDURE,
+    IDENT(String),
 }
 
 impl Ident {
@@ -24,6 +27,9 @@ pub enum Token {
     LParen,
     RParen,
 
+    Colon,
+    SemiColon,
+
     If,
     Then,
     While,
@@ -45,4 +51,47 @@ pub enum Token {
     AndAnd,
     Or,
     OrOr,
+}
+
+impl fmt::Display for Token {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        use self::Token::*;
+        let s = match *self {
+            Identifier(..) => "Identifier(..)",
+            Add => "Add",
+            Sub => "Sub",
+            Mul => "Mul",
+            Div => "Div",
+
+            LParen => "LParen",
+            RParen => "RParen",
+
+            Colon => "Colon",
+            SemiColon => "SemiColon",
+
+            If => "If",
+            Then => "Then",
+            While => "While",
+            Do => "Do",
+
+            Begin => "Begin",
+            End => "End",
+
+            Call => "Call",
+
+            Gt => "Gt",
+            Ge => "Ge",
+            Lt => "Lt",
+            Le => "Le",
+            Eq => "Eq",
+            EqEq => "EqEq",
+            Ne => "Ne",
+            And => "And",
+            AndAnd => "AndAnd",
+            Or => "Or",
+            OrOr => "OrOr",
+
+        };
+        s.fmt(f)
+    }
 }
