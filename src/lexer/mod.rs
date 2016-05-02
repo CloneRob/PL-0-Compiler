@@ -1,13 +1,13 @@
 mod token;
 
-pub struct Lexer {
+pub struct Lexer<'a> {
     buf: String,
     pos: usize,
     last_symbol: Option<char>,
-    last_token: Option<token::Token>,
+    last_token: Option<token::Token<'a>>,
 }
 
-impl Lexer {
+impl<'a> Lexer<'a> {
     pub fn new(src: &'static str) -> Lexer {
         Lexer {
             buf: src.to_string(),
@@ -21,12 +21,12 @@ impl Lexer {
         if let Some((_, span)) = (regex!(r"^\s*")).find(&self.buf[self.pos..]) {
             let word = self.buf[self.pos .. self.pos + span].chars().as_str();
             let x = match word {
-                "VAR" => token::Ident::VAR,
-                "CONST" => token::Ident::CONST,
-                "PROCEDURE" => token::Ident::PROCEDURE,
-                _ => token::Ident::IDENT(word.to_string()),
+                "VAR" => token::Token::VAR,
+                "CONST" => token::Token::CONST,
+                "PROCEDURE" => token::Token::PROCEDURE,
+                _ => token::Token::IDENT(word),
             };
-            return Some(token::Token::Identifier(x))
+            return Some(x)
         } else {
             None
         }
@@ -42,9 +42,9 @@ impl Lexer {
     }
 }
 
-impl Iterator for Lexer {
-    type Item = token::Token;
-    fn next(&mut self) -> Option<token::Token> {
+impl<'a> Iterator for Lexer<'a> {
+    type Item = token::Token<'a>;
+    fn next(& mut self) -> Option<token::Token> {
         if let Some((_, o)) = (regex!(r"^\s*")).find(&self.buf[self.pos..]) {
             self.pos += o;
         }
@@ -84,7 +84,7 @@ impl Iterator for Lexer {
                     self.bump();
                     Some(token::Token::Gt)
                 }
-                x if x.is_alphabetic() => None,
+                x if x.is_alphabetic() => self.lex_word(),
                 x if x.is_numeric() => None,
 
                 _ => None,
