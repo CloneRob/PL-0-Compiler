@@ -1,11 +1,11 @@
 use std::fmt;
 
-pub enum Token<'a> {
+pub enum Token<'tok> {
     VAR,
     CONST,
     PROCEDURE,
-    IDENT(&'a str),
-
+    Ident(&'tok str),
+    Val(&'tok str),
     Add,
     Sub,
     Mul,
@@ -22,10 +22,13 @@ pub enum Token<'a> {
     While,
     Do,
 
+    Odd,
+
     Begin,
     End,
 
     Call,
+    Assign,
 
     Gt,
     Ge,
@@ -38,16 +41,19 @@ pub enum Token<'a> {
     AndAnd,
     Or,
     OrOr,
+
+    Whitespace,
 }
 
-impl<'a> fmt::Display for Token<'a> {
+impl<'tok> fmt::Display for Token<'tok> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         use self::Token::*;
         let s = match *self {
             VAR => "VAR",
             CONST =>"CONST",
             PROCEDURE => "PROCEDURE",
-            IDENT(s) => s,
+            Ident(s) => s,
+            Val(i) => i,
             Add => "+",
             Sub => "-",
             Mul => "*",
@@ -67,8 +73,11 @@ impl<'a> fmt::Display for Token<'a> {
             Begin => "Begin",
             End => "End",
 
+            Odd => "Odd",
+
             Call => "Call",
 
+            Assign => ":=",
             Gt => ">",
             Ge => ">=",
             Lt => "<",
@@ -80,6 +89,8 @@ impl<'a> fmt::Display for Token<'a> {
             AndAnd => "&&",
             Or => "|",
             OrOr => "||",
+
+            Whitespace => " "
 
         };
         s.fmt(f)

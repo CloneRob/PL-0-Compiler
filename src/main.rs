@@ -8,6 +8,8 @@ extern crate regex;
 mod lexer;
 fn main() {
     println!("Hello, world!");
+    let mut lexer = lexer::Lex::new(PL0_SRC);
+
 }
 
 

@@ -1,52 +1,182 @@
 mod token;
 
-pub struct Lexer<'a> {
-    buf: String,
+use self::token::Token;
+
+pub struct Lex<'str> {
+    buf: &'str str,
     pos: usize,
     last_symbol: Option<char>,
-    last_token: Option<token::Token<'a>>,
 }
 
-impl<'a> Lexer<'a> {
-    pub fn new(src: &'static str) -> Lexer {
-        Lexer {
-            buf: src.to_string(),
+impl <'str, 'tok> Lex<'str> {
+    pub fn new(src: &'static str) -> Lex {
+        Lex {
+            buf: src,
             pos: 0,
             last_symbol: None,
-            last_token: None,
         }
     }
 
-    fn lex_word(&mut self) -> Option<token::Token> {
-        if let Some((_, span)) = (regex!(r"^\s*")).find(&self.buf[self.pos..]) {
-            let word = self.buf[self.pos .. self.pos + span].chars().as_str();
-            let x = match word {
-                "VAR" => token::Token::VAR,
-                "CONST" => token::Token::CONST,
-                "PROCEDURE" => token::Token::PROCEDURE,
-                _ => token::Token::IDENT(word),
-            };
-            return Some(x)
-        } else {
-            None
-        }
+    fn current_position(&self) {
+        println!("Current position: {:?}", self.pos);
+        println!("Current char: {:?}", &self.buf[self.pos..].chars().next());
+        println!("Last symbol: {:?}", self.last_symbol);
     }
 
-    fn lex_ident(&mut self) -> Option<token::Token> {
-        unimplemented!()
-    }
 
     fn bump(&mut self) {
         self.last_symbol = self.buf[self.pos..].chars().next();
         self.pos += 1;
     }
+
+    fn lex_assign(&mut self) -> Option<Token<'str>> {
+        let current_char = self.buf[self.pos + 1..].chars().next();
+        if let Some(c) = current_char {
+            match c {
+                '=' => {
+                    self.bump();
+                    self.bump();
+                    Some(Token::Assign)
+                },
+                _ => {
+                    self.bump();
+                    None
+                }
+            }
+        } else {
+            None
+        }
+    }
+    fn lex_eq(&mut self) -> Option<Token<'str>> {
+        let current_char = self.buf[self.pos + 1 ..].chars().next();
+        if let Some(c) = current_char {
+            match c {
+                '=' => {
+                    self.bump();
+                    self.bump();
+                    Some(Token::EqEq)
+                },
+                _ => {
+                    self.bump();
+                    Some(Token::Eq)
+                }
+            }
+        } else {
+            None
+        }
+    }
+
+    fn lex_lt(&mut self) -> Option<Token<'str>> {
+        let current_char = self.buf[self.pos + 1 ..].chars().next();
+        if let Some(c) = current_char {
+            match c {
+                '=' => {
+                    self.bump();
+                    self.bump();
+                    Some(Token::Le)
+                },
+                _ => {
+                    self.bump();
+                    Some(Token::Lt)
+                }
+            }
+        } else {
+            None
+        }
+    }
+
+    fn lex_gt(&mut self) -> Option<Token<'str>> {
+        let current_char = self.buf[self.pos + 1 ..].chars().next();
+        if let Some(c) = current_char {
+            match c {
+                '=' => {
+                    self.bump();
+                    self.bump();
+                    Some(Token::Ge)
+                },
+                _ => {
+                    self.bump();
+                    Some(Token::Gt)
+                }
+            }
+        } else {
+            None
+        }
+    }
+    fn lex_num(&mut self) -> Option<Token<'str>> {
+        if let Some((_, span)) = (regex!(r"[^\s]+")).find(&self.buf[self.pos..]) {
+            let word = self.buf[self.pos .. self.pos + span].chars().as_str();
+            self.pos += word.len();
+            Some(Token::Val(word))
+        } else {
+            self.bump();
+            None
+        }
+
+    }
+    fn lex_word(&mut self) -> Option<Token<'str>> {
+        if let Some((_, span)) = (regex!(r"[^\s]+")).find(&self.buf[self.pos..]) {
+            let word = self.buf[self.pos .. self.pos + span].chars().as_str();
+            let x = match word {
+                "VAR" => {
+                    self.pos += word.len();
+                    Token::VAR
+                },
+                "CONST" => {
+                    self.pos += word.len();
+                    Token::CONST
+                },
+                "PROCEDURE" => {
+                    self.pos += word.len();
+                    Token::PROCEDURE
+                },
+                "CALL" => {
+                    self.pos += word.len();
+                    Token::Call
+                },
+                "DO" => {
+                    self.pos += word.len();
+                    Token::Do
+                },
+                "WHILE" => {
+                    self.pos += word.len();
+                    Token::While
+                },
+                "IF" => {
+                    self.pos += word.len();
+                    Token::If
+                },
+                "BEGIN" => {
+                    self.pos += word.len();
+                    Token::Begin
+                },
+                "END" => {
+                    self.pos += word.len();
+                    Token::End
+                },
+                "ODD" => {
+                    self.pos += word.len();
+                    Token::Odd
+                },
+                _ => {
+                    self.pos += word.len();
+                    Token::Ident(&word)
+                }
+            };
+            //self.current_position();
+            Some(x)
+        } else {
+            self.bump();
+            None
+        }
+    }
 }
 
-impl<'a> Iterator for Lexer<'a> {
-    type Item = token::Token<'a>;
-    fn next(& mut self) -> Option<token::Token> {
-        if let Some((_, o)) = (regex!(r"^\s*")).find(&self.buf[self.pos..]) {
-            self.pos += o;
+impl<'str> Iterator for Lex<'str> {
+    type Item = Token<'str>;
+    fn next(&mut self) -> Option<Token<'str>> {
+        if let Some((s, _)) = (regex!(r"[^\s]+")).find(&self.buf[self.pos..]) {
+            self.pos += s;
         }
 
         let current_char = self.buf[self.pos..].chars().next();
@@ -54,42 +184,62 @@ impl<'a> Iterator for Lexer<'a> {
             match c {
                 '+' => {
                     self.bump();
-                    Some(token::Token::Add)
+                    Some(Token::Add)
                 }
                 '-' => {
                     self.bump();
-                    Some(token::Token::Sub)
+                    Some(Token::Sub)
                 }
                 '*' => {
                     self.bump();
-                    Some(token::Token::Mul)
+                    Some(Token::Mul)
                 }
                 '/' => {
                     self.bump();
-                    Some(token::Token::Div)
+                    Some(Token::Div)
                 }
                 '(' => {
                     self.bump();
-                    Some(token::Token::LParen)
+                    Some(Token::LParen)
                 }
                 ')' => {
                     self.bump();
-                    Some(token::Token::RParen)
+                    Some(Token::RParen)
+                }
+                ':' => {
+                    self.lex_assign()
                 }
                 '<' => {
-                    self.bump();
-                    Some(token::Token::Lt)
+                    self.lex_lt()
                 }
                 '>' => {
+                    self.lex_gt()
+                }
+                '=' => {
+                    self.lex_eq()
+                }
+                ',' => {
                     self.bump();
-                    Some(token::Token::Gt)
+                    Some(Token::Colon)
+                }
+                ';' => {
+                    self.bump();
+                    Some(Token::SemiColon)
+                }
+                ' ' => {
+                    self.bump();
+                    None
+                }
+                '\n' => {
+                    self.bump();
+                    None
                 }
                 x if x.is_alphabetic() => self.lex_word(),
-                x if x.is_numeric() => None,
-
+                x if x.is_numeric() => self.lex_num(),
                 _ => None,
             }
         } else {
+            println!("None");
             None
         }
     }
