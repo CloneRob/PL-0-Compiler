@@ -146,6 +146,10 @@ impl <'str, 'tok> Lex<'str> {
                     self.pos += word.len();
                     Token::If
                 },
+                "THEN" => {
+                    self.pos += word.len();
+                    Token::Then
+                },
                 "BEGIN" => {
                     self.pos += word.len();
                     Token::Begin
@@ -159,8 +163,13 @@ impl <'str, 'tok> Lex<'str> {
                     Token::Odd
                 },
                 _ => {
-                    self.pos += word.len();
-                    Token::Ident(&word)
+                    if regex!(r"\b(,|;)+").is_match(word) {
+                        self.pos += word.len() - 1;
+                        Token::Ident(&word[.. word.len() - 1])
+                    } else {
+                        self.pos += word.len();
+                        Token::Ident(&word[..])
+                    }
                 }
             };
             //self.current_position();

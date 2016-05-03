@@ -36,13 +36,6 @@ pub enum Token<'tok> {
     Le,
     Eq,
     EqEq,
-    Ne,
-    And,
-    AndAnd,
-    Or,
-    OrOr,
-
-    Whitespace,
 }
 
 impl<'tok> fmt::Display for Token<'tok> {
@@ -84,14 +77,6 @@ impl<'tok> fmt::Display for Token<'tok> {
             Le => "<=",
             Eq => "=",
             EqEq => "==",
-            Ne => "!=",
-            And => "&",
-            AndAnd => "&&",
-            Or => "|",
-            OrOr => "||",
-
-            Whitespace => " "
-
         };
         s.fmt(f)
     }

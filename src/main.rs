@@ -3,16 +3,17 @@
 #[allow(dead_code)]
 extern crate regex;
 
-#[allow(dead_code)]
 
 mod lexer;
 fn main() {
-    println!("Hello, world!");
-    let mut lexer = lexer::Lex::new(PL0_SRC);
+    let lexer = lexer::Lex::new(PL0_SRC);
+
+    for l in lexer {
+        println!("{} ",l);
+
+    }
 
 }
-
-
 static PL0_SRC: &'static str =
 "CONST
   m =  7,
