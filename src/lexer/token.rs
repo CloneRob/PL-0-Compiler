@@ -43,7 +43,7 @@ impl fmt::Display for Token {
         use self::Token::*;
         let s = match *self {
             VAR => "VAR",
-            CONST =>"CONST",
+            CONST => "CONST",
             PROCEDURE => "PROCEDURE",
             Ident(ref s) => s,
             Val(ref i) => i,

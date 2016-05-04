@@ -37,7 +37,7 @@ impl Lex {
                     self.bump();
                     self.bump();
                     Some(Token::Assign)
-                },
+                }
                 _ => {
                     self.bump();
                     None
@@ -48,14 +48,14 @@ impl Lex {
         }
     }
     fn lex_eq(&mut self) -> Option<Token> {
-        let current_char = self.buf[self.pos + 1 ..].chars().next();
+        let current_char = self.buf[self.pos + 1..].chars().next();
         if let Some(c) = current_char {
             match c {
                 '=' => {
                     self.bump();
                     self.bump();
                     Some(Token::EqEq)
-                },
+                }
                 _ => {
                     self.bump();
                     Some(Token::Eq)
@@ -67,14 +67,14 @@ impl Lex {
     }
 
     fn lex_lt(&mut self) -> Option<Token> {
-        let current_char = self.buf[self.pos + 1 ..].chars().next();
+        let current_char = self.buf[self.pos + 1..].chars().next();
         if let Some(c) = current_char {
             match c {
                 '=' => {
                     self.bump();
                     self.bump();
                     Some(Token::Le)
-                },
+                }
                 _ => {
                     self.bump();
                     Some(Token::Lt)
@@ -86,14 +86,14 @@ impl Lex {
     }
 
     fn lex_gt(&mut self) -> Option<Token> {
-        let current_char = self.buf[self.pos + 1 ..].chars().next();
+        let current_char = self.buf[self.pos + 1..].chars().next();
         if let Some(c) = current_char {
             match c {
                 '=' => {
                     self.bump();
                     self.bump();
                     Some(Token::Ge)
-                },
+                }
                 _ => {
                     self.bump();
                     Some(Token::Gt)
@@ -105,7 +105,7 @@ impl Lex {
     }
     fn lex_num(&mut self) -> Option<Token> {
         if let Some((_, span)) = (regex!(r"[^\s]+")).find(&self.buf[self.pos..]) {
-            let word = self.buf[self.pos .. self.pos + span].chars().as_str();
+            let word = self.buf[self.pos..self.pos + span].chars().as_str();
             self.pos += word.len();
             Some(Token::Val(word.to_string()))
         } else {
@@ -116,63 +116,63 @@ impl Lex {
     }
     fn lex_word(&mut self) -> Option<Token> {
         if let Some((_, span)) = (regex!(r"[^\s]+")).find(&self.buf[self.pos..]) {
-            let word = self.buf[self.pos .. self.pos + span].chars().as_str();
+            let word = self.buf[self.pos..self.pos + span].chars().as_str();
             let x = match word {
                 "VAR" => {
                     self.pos += word.len();
                     Token::VAR
-                },
+                }
                 "CONST" => {
                     self.pos += word.len();
                     Token::CONST
-                },
+                }
                 "PROCEDURE" => {
                     self.pos += word.len();
                     Token::PROCEDURE
-                },
+                }
                 "CALL" => {
                     self.pos += word.len();
                     Token::Call
-                },
+                }
                 "DO" => {
                     self.pos += word.len();
                     Token::Do
-                },
+                }
                 "WHILE" => {
                     self.pos += word.len();
                     Token::While
-                },
+                }
                 "IF" => {
                     self.pos += word.len();
                     Token::If
-                },
+                }
                 "THEN" => {
                     self.pos += word.len();
                     Token::Then
-                },
+                }
                 "BEGIN" => {
                     self.pos += word.len();
                     Token::Begin
-                },
+                }
                 "END" => {
                     self.pos += word.len();
                     Token::End
-                },
+                }
                 "ODD" => {
                     self.pos += word.len();
                     Token::Odd
-                },
+                }
                 _ => {
                     if regex!(r"\b(,|;)+").is_match(word) {
                         self.pos += word.len() - 1;
-                        Token::Ident(word[.. word.len() - 1].to_string())
+                        Token::Ident(word[..word.len() - 1].to_string())
                     } else {
                         self.pos += word.len();
                         Token::Ident(word[..].to_string())
                     }
                 }
             };
-            //self.current_position();
+            // self.current_position();
             Some(x)
         } else {
             self.bump();
@@ -215,18 +215,10 @@ impl Iterator for Lex {
                     self.bump();
                     Some(Token::RParen)
                 }
-                ':' => {
-                    self.lex_assign()
-                }
-                '<' => {
-                    self.lex_lt()
-                }
-                '>' => {
-                    self.lex_gt()
-                }
-                '=' => {
-                    self.lex_eq()
-                }
+                ':' => self.lex_assign(),
+                '<' => self.lex_lt(),
+                '>' => self.lex_gt(),
+                '=' => self.lex_eq(),
                 ',' => {
                     self.bump();
                     Some(Token::Colon)

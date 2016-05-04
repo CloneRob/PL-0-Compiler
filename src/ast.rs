@@ -34,7 +34,6 @@ pub enum Term {
     Fact(Box<Factor>),
     Mul(Box<(Factor, Factor)>),
     Div(Box<(Factor, Factor)>),
-
 }
 
 pub enum Factor {
