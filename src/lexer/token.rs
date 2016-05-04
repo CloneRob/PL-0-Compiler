@@ -1,11 +1,11 @@
 use std::fmt;
 
-pub enum Token<'tok> {
+pub enum Token {
     VAR,
     CONST,
     PROCEDURE,
-    Ident(&'tok str),
-    Val(&'tok str),
+    Ident(String),
+    Val(String),
     Add,
     Sub,
     Mul,
@@ -38,15 +38,15 @@ pub enum Token<'tok> {
     EqEq,
 }
 
-impl<'tok> fmt::Display for Token<'tok> {
+impl fmt::Display for Token {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         use self::Token::*;
         let s = match *self {
             VAR => "VAR",
             CONST =>"CONST",
             PROCEDURE => "PROCEDURE",
-            Ident(s) => s,
-            Val(i) => i,
+            Ident(ref s) => s,
+            Val(ref i) => i,
             Add => "+",
             Sub => "-",
             Mul => "*",

@@ -5,14 +5,15 @@ extern crate regex;
 
 
 mod lexer;
+mod ast;
+
 fn main() {
     let lexer = lexer::Lex::new(PL0_SRC);
 
-    for l in lexer {
-        println!("{} ",l);
-
+    let token_stream = lexer.into_iter().collect::<Vec<_>>();
+    for t in token_stream {
+        println!("{}", t);
     }
-
 }
 static PL0_SRC: &'static str =
 "CONST

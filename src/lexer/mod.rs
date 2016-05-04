@@ -1,17 +1,17 @@
-mod token;
+pub mod token;
 
 use self::token::Token;
 
-pub struct Lex<'str> {
-    buf: &'str str,
+pub struct Lex {
+    buf: String,
     pos: usize,
     last_symbol: Option<char>,
 }
 
-impl <'str, 'tok> Lex<'str> {
+impl Lex {
     pub fn new(src: &'static str) -> Lex {
         Lex {
-            buf: src,
+            buf: src.to_string(),
             pos: 0,
             last_symbol: None,
         }
@@ -29,7 +29,7 @@ impl <'str, 'tok> Lex<'str> {
         self.pos += 1;
     }
 
-    fn lex_assign(&mut self) -> Option<Token<'str>> {
+    fn lex_assign(&mut self) -> Option<Token> {
         let current_char = self.buf[self.pos + 1..].chars().next();
         if let Some(c) = current_char {
             match c {
@@ -47,7 +47,7 @@ impl <'str, 'tok> Lex<'str> {
             None
         }
     }
-    fn lex_eq(&mut self) -> Option<Token<'str>> {
+    fn lex_eq(&mut self) -> Option<Token> {
         let current_char = self.buf[self.pos + 1 ..].chars().next();
         if let Some(c) = current_char {
             match c {
@@ -66,7 +66,7 @@ impl <'str, 'tok> Lex<'str> {
         }
     }
 
-    fn lex_lt(&mut self) -> Option<Token<'str>> {
+    fn lex_lt(&mut self) -> Option<Token> {
         let current_char = self.buf[self.pos + 1 ..].chars().next();
         if let Some(c) = current_char {
             match c {
@@ -85,7 +85,7 @@ impl <'str, 'tok> Lex<'str> {
         }
     }
 
-    fn lex_gt(&mut self) -> Option<Token<'str>> {
+    fn lex_gt(&mut self) -> Option<Token> {
         let current_char = self.buf[self.pos + 1 ..].chars().next();
         if let Some(c) = current_char {
             match c {
@@ -103,18 +103,18 @@ impl <'str, 'tok> Lex<'str> {
             None
         }
     }
-    fn lex_num(&mut self) -> Option<Token<'str>> {
+    fn lex_num(&mut self) -> Option<Token> {
         if let Some((_, span)) = (regex!(r"[^\s]+")).find(&self.buf[self.pos..]) {
             let word = self.buf[self.pos .. self.pos + span].chars().as_str();
             self.pos += word.len();
-            Some(Token::Val(word))
+            Some(Token::Val(word.to_string()))
         } else {
             self.bump();
             None
         }
 
     }
-    fn lex_word(&mut self) -> Option<Token<'str>> {
+    fn lex_word(&mut self) -> Option<Token> {
         if let Some((_, span)) = (regex!(r"[^\s]+")).find(&self.buf[self.pos..]) {
             let word = self.buf[self.pos .. self.pos + span].chars().as_str();
             let x = match word {
@@ -165,10 +165,10 @@ impl <'str, 'tok> Lex<'str> {
                 _ => {
                     if regex!(r"\b(,|;)+").is_match(word) {
                         self.pos += word.len() - 1;
-                        Token::Ident(&word[.. word.len() - 1])
+                        Token::Ident(word[.. word.len() - 1].to_string())
                     } else {
                         self.pos += word.len();
-                        Token::Ident(&word[..])
+                        Token::Ident(word[..].to_string())
                     }
                 }
             };
@@ -181,9 +181,9 @@ impl <'str, 'tok> Lex<'str> {
     }
 }
 
-impl<'str> Iterator for Lex<'str> {
-    type Item = Token<'str>;
-    fn next(&mut self) -> Option<Token<'str>> {
+impl Iterator for Lex {
+    type Item = Token;
+    fn next(&mut self) -> Option<Token> {
         if let Some((s, _)) = (regex!(r"[^\s]+")).find(&self.buf[self.pos..]) {
             self.pos += s;
         }
