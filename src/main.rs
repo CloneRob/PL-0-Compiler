@@ -11,31 +11,31 @@ fn main() {
     let lexer = lexer::Lex::new(PL0_SRC);
 
     let token_stream = lexer.into_iter().collect::<Vec<_>>();
+    println!("{:?}", token_stream.len());
     for t in token_stream {
         println!("{}", t);
     }
 }
-static PL0_SRC: &'static str = "CONST
+
+static PL0_SRC: &'static str =
+"CONST
   m =  7,
   n = 85;
 
 VAR
   x, y, z, q, r;
 
-PROCEDURE \
-                                multiply;
+PROCEDURE multiply;
 VAR a, b;
 
 BEGIN
   a := x;
   b := y;
   z := 0;
-  WHILE \
-                                b > 0 DO BEGIN
+  WHILE b > 0 DO BEGIN
     IF ODD b THEN z := z + a;
     a := 2 * a;
-    \
-                                b := b / 2
+    b := b / 2
   END
 END;
 
@@ -43,35 +43,29 @@ PROCEDURE divide;
 VAR w;
 BEGIN
   r := x;
-  \
-                                q := 0;
+  q := 0;
   w := y;
   WHILE w <= r DO w := 2 * w;
-  WHILE w > y DO \
-                                BEGIN
+  WHILE w > y DO BEGIN
     q := 2 * q;
     w := w / 2;
     IF w <= r THEN BEGIN
-      \
-                                r := r - w;
+      r := r - w;
       q := q + 1
     END
   END
 END;
 
 PROCEDURE gcd;
-\
-                                VAR f, g;
+VAR f, g;
 BEGIN
   f := x;
   g := y;
   WHILE f # g DO BEGIN
-    IF \
-                                f < g THEN g := g - f;
+    IF f < g THEN g := g - f;
     IF g < f THEN f := f - g
   END;
-  z := \
-                                f
+  z := f
 END;
 
 BEGIN
@@ -79,8 +73,7 @@ BEGIN
   y := n;
   CALL multiply;
   x := 25;
-  y \
-                                :=  3;
+  y :=  3;
   CALL divide;
   x := 84;
   y := 36;

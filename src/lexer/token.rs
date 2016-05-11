@@ -24,6 +24,7 @@ pub enum Operator {
     Star,
     Slash,
 
+    Tilde,
     Equals,
     EqEq,
     NotEquals,
@@ -49,6 +50,7 @@ impl fmt::Display for Operator {
             Star => "*",
             Slash => "/",
 
+            Tilde => "#",
             Equals => "=",
             EqEq => "==",
             NotEquals => "!=",
@@ -66,6 +68,7 @@ impl fmt::Display for Operator {
     }
 }
 
+
 #[derive(Debug,Clone)]
 pub enum Keyword {
     Var,
@@ -81,6 +84,7 @@ pub enum Keyword {
     End,
     While,
     Do,
+
 }
 
 impl fmt::Display for Keyword {
@@ -107,7 +111,6 @@ impl fmt::Display for Keyword {
     }
 }
 
-#[derive(Debug, Clone)]
 pub enum Token {
     Ident(String),
     Value(String),
@@ -116,9 +119,21 @@ pub enum Token {
     Delim(Delimiter),
     Comma,
     SemiColon,
+    Dot,
 }
 impl fmt::Display for Token {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        fmt::Debug::fmt(self, f)
+        use self::Token::*;
+
+        match *self {
+            Ident(ref i) => i.fmt(f),
+            Value(ref v) => v.fmt(f),
+            Key(ref k) => k.fmt(f),
+            Op(ref o) => o.fmt(f),
+            Delim(ref d) => d.fmt(f),
+            Comma => ",".fmt(f),
+            SemiColon => ";".fmt(f),
+            Dot => ".".fmt(f),
+        }
     }
 }

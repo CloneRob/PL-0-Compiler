@@ -106,17 +106,18 @@ impl Lex {
     fn lex_num(&mut self) -> Option<Token> {
         if let Some((_, span)) = (regex!(r"[^\s]+")).find(&self.buf[self.pos..]) {
             let word = self.buf[self.pos..self.pos + span].chars().as_str();
+            let word = Lex::check_end(word);
             self.pos += word.len();
             Some(Token::Value(word.to_string()))
         } else {
             self.bump();
             None
         }
-
     }
     fn lex_word(&mut self) -> Option<Token> {
         if let Some((_, span)) = (regex!(r"[^\s]+")).find(&self.buf[self.pos..]) {
             let word = self.buf[self.pos..self.pos + span].chars().as_str();
+            let word = Lex::check_end(word);
             let x = match word {
                 "VAR" => {
                     self.pos += word.len();
@@ -163,20 +164,21 @@ impl Lex {
                     Token::Key(Keyword::Odd)
                 }
                 _ => {
-                    if regex!(r"\b(,|;)+").is_match(word) {
-                        self.pos += word.len() - 1;
-                        Token::Ident(word[..word.len() - 1].to_string())
-                    } else {
-                        self.pos += word.len();
-                        Token::Ident(word[..].to_string())
-                    }
+                    self.pos += word.len();
+                    Token::Ident(word[..].to_string())
                 }
             };
-            // self.current_position();
             Some(x)
         } else {
             self.bump();
             None
+        }
+    }
+    fn check_end(word: &str) -> &str {
+        match word.chars().last() {
+            Some('.') | Some(',') | Some(';') => word[.. word.len() - 1].chars().as_str(),
+            _ => word
+
         }
     }
 }
@@ -185,12 +187,21 @@ impl Iterator for Lex {
     type Item = Token;
     fn next(&mut self) -> Option<Token> {
         if let Some((s, _)) = (regex!(r"[^\s]+")).find(&self.buf[self.pos..]) {
-            self.pos += s;
+            if self.pos + s >= self.buf.len() {
+                return None;
+            } else {
+                self.pos += s;
+            }
         }
 
         let current_char = self.buf[self.pos..].chars().next();
+        println!("{:?}", current_char);
         if let Some(c) = current_char {
             match c {
+                '.' => {
+                    self.bump();
+                    Some(Token::Dot)
+                }
                 '+' => {
                     self.bump();
                     Some(Token::Op(Operator::Plus))
@@ -206,6 +217,10 @@ impl Iterator for Lex {
                 '/' => {
                     self.bump();
                     Some(Token::Op(Operator::Slash))
+                }
+                '#' => {
+                    self.bump();
+                    Some(Token::Op(Operator::Tilde))
                 }
                 '(' => {
                     self.bump();
@@ -240,7 +255,6 @@ impl Iterator for Lex {
                 _ => None,
             }
         } else {
-            println!("None");
             None
         }
     }
