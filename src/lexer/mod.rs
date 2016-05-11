@@ -1,6 +1,6 @@
 pub mod token;
 
-use self::token::Token;
+use self::token::{Token, Operator, Delimiter, Keyword};
 
 pub struct Lex {
     buf: String,
@@ -36,7 +36,7 @@ impl Lex {
                 '=' => {
                     self.bump();
                     self.bump();
-                    Some(Token::Assign)
+                    Some(Token::Op(Operator::Assign))
                 }
                 _ => {
                     self.bump();
@@ -54,11 +54,11 @@ impl Lex {
                 '=' => {
                     self.bump();
                     self.bump();
-                    Some(Token::EqEq)
+                    Some(Token::Op(Operator::EqEq))
                 }
                 _ => {
                     self.bump();
-                    Some(Token::Eq)
+                    Some(Token::Op(Operator::Equals))
                 }
             }
         } else {
@@ -73,11 +73,11 @@ impl Lex {
                 '=' => {
                     self.bump();
                     self.bump();
-                    Some(Token::Le)
+                    Some(Token::Op(Operator::LessOrEqual))
                 }
                 _ => {
                     self.bump();
-                    Some(Token::Lt)
+                    Some(Token::Op(Operator::Less))
                 }
             }
         } else {
@@ -92,11 +92,11 @@ impl Lex {
                 '=' => {
                     self.bump();
                     self.bump();
-                    Some(Token::Ge)
+                    Some(Token::Op(Operator::GreaterOrEqual))
                 }
                 _ => {
                     self.bump();
-                    Some(Token::Gt)
+                    Some(Token::Op(Operator::Greater))
                 }
             }
         } else {
@@ -107,7 +107,7 @@ impl Lex {
         if let Some((_, span)) = (regex!(r"[^\s]+")).find(&self.buf[self.pos..]) {
             let word = self.buf[self.pos..self.pos + span].chars().as_str();
             self.pos += word.len();
-            Some(Token::Val(word.to_string()))
+            Some(Token::Value(word.to_string()))
         } else {
             self.bump();
             None
@@ -120,47 +120,47 @@ impl Lex {
             let x = match word {
                 "VAR" => {
                     self.pos += word.len();
-                    Token::VAR
+                    Token::Key(Keyword::Var)
                 }
                 "CONST" => {
                     self.pos += word.len();
-                    Token::CONST
+                    Token::Key(Keyword::Const)
                 }
                 "PROCEDURE" => {
                     self.pos += word.len();
-                    Token::PROCEDURE
+                    Token::Key(Keyword::Procedure)
                 }
                 "CALL" => {
                     self.pos += word.len();
-                    Token::Call
+                    Token::Key(Keyword::Call)
                 }
                 "DO" => {
                     self.pos += word.len();
-                    Token::Do
+                    Token::Key(Keyword::Do)
                 }
                 "WHILE" => {
                     self.pos += word.len();
-                    Token::While
+                    Token::Key(Keyword::While)
                 }
                 "IF" => {
                     self.pos += word.len();
-                    Token::If
+                    Token::Key(Keyword::If)
                 }
                 "THEN" => {
                     self.pos += word.len();
-                    Token::Then
+                    Token::Key(Keyword::Then)
                 }
                 "BEGIN" => {
                     self.pos += word.len();
-                    Token::Begin
+                    Token::Key(Keyword::Begin)
                 }
                 "END" => {
                     self.pos += word.len();
-                    Token::End
+                    Token::Key(Keyword::End)
                 }
                 "ODD" => {
                     self.pos += word.len();
-                    Token::Odd
+                    Token::Key(Keyword::Odd)
                 }
                 _ => {
                     if regex!(r"\b(,|;)+").is_match(word) {
@@ -193,27 +193,27 @@ impl Iterator for Lex {
             match c {
                 '+' => {
                     self.bump();
-                    Some(Token::Add)
+                    Some(Token::Op(Operator::Plus))
                 }
                 '-' => {
                     self.bump();
-                    Some(Token::Sub)
+                    Some(Token::Op(Operator::Minus))
                 }
                 '*' => {
                     self.bump();
-                    Some(Token::Mul)
+                    Some(Token::Op(Operator::Star))
                 }
                 '/' => {
                     self.bump();
-                    Some(Token::Div)
+                    Some(Token::Op(Operator::Slash))
                 }
                 '(' => {
                     self.bump();
-                    Some(Token::LParen)
+                    Some(Token::Delim(Delimiter::LParen))
                 }
                 ')' => {
                     self.bump();
-                    Some(Token::RParen)
+                    Some(Token::Delim(Delimiter::RParen))
                 }
                 ':' => self.lex_assign(),
                 '<' => self.lex_lt(),
@@ -221,7 +221,7 @@ impl Iterator for Lex {
                 '=' => self.lex_eq(),
                 ',' => {
                     self.bump();
-                    Some(Token::Colon)
+                    Some(Token::Comma)
                 }
                 ';' => {
                     self.bump();

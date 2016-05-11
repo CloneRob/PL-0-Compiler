@@ -1,83 +1,124 @@
 use std::fmt;
 
-pub enum Token {
-    VAR,
-    CONST,
-    PROCEDURE,
-    Ident(String),
-    Val(String),
-    Add,
-    Sub,
-    Mul,
-    Div,
-
+#[derive(Debug, Clone)]
+pub enum Delimiter {
     LParen,
     RParen,
+}
 
-    Colon,
-    SemiColon,
+impl fmt::Display for Delimiter {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        use self::Delimiter::*;
+        let x = match *self {
+            LParen => "(",
+            RParen => ")",
+        };
+        x.fmt(f)
+    }
+}
+
+#[derive(Debug, Clone)]
+pub enum Operator {
+    Plus,
+    Minus,
+    Star,
+    Slash,
+
+    Equals,
+    EqEq,
+    NotEquals,
+
+
+    Greater,
+    GreaterOrEqual,
+    Less,
+    LessOrEqual,
+
+    Assign,
+
+    Not,
+    Qmark,
+}
+
+impl fmt::Display for Operator {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        use self::Operator::*;
+        let x = match *self {
+            Plus => "+",
+            Minus => "-",
+            Star => "*",
+            Slash => "/",
+
+            Equals => "=",
+            EqEq => "==",
+            NotEquals => "!=",
+            Greater => ">",
+            GreaterOrEqual => ">=",
+            Less => "<",
+            LessOrEqual => "<=",
+
+            Assign => ":=",
+
+            Not => "!",
+            Qmark => "?",
+        };
+        x.fmt(f)
+    }
+}
+
+#[derive(Debug,Clone)]
+pub enum Keyword {
+    Var,
+    Const,
+    Procedure,
+
+    Call,
+    Odd,
 
     If,
     Then,
-    While,
-    Do,
-
-    Odd,
-
     Begin,
     End,
-
-    Call,
-    Assign,
-
-    Gt,
-    Ge,
-    Lt,
-    Le,
-    Eq,
-    EqEq,
+    While,
+    Do,
 }
 
-impl fmt::Display for Token {
+impl fmt::Display for Keyword {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        use self::Token::*;
-        let s = match *self {
-            VAR => "VAR",
-            CONST => "CONST",
-            PROCEDURE => "PROCEDURE",
-            Ident(ref s) => s,
-            Val(ref i) => i,
-            Add => "+",
-            Sub => "-",
-            Mul => "*",
-            Div => "/",
+        use self::Keyword::*;
+        let x = match *self {
+            Var => "var",
+            Const => "const",
+            Procedure => "procedure",
 
-            LParen => "(",
-            RParen => ")",
+            Call => "call",
+            Odd => "odd",
 
-            Colon => ",",
-            SemiColon => ";",
-
-            If => "If",
-            Then => "Then",
-            While => "While",
-            Do => "Do",
+            If => "if",
+            Then => "then",
 
             Begin => "Begin",
             End => "End",
 
-            Odd => "Odd",
-
-            Call => "Call",
-
-            Assign => ":=",
-            Gt => ">",
-            Ge => ">=",
-            Lt => "<",
-            Le => "<=",
-            Eq => "=",
-            EqEq => "==",
+            While => "while",
+            Do => "so",
         };
-        s.fmt(f)
+        x.fmt(f)
+    }
+}
+
+#[derive(Debug, Clone)]
+pub enum Token {
+    Ident(String),
+    Value(String),
+    Key(Keyword),
+    Op(Operator),
+    Delim(Delimiter),
+    Comma,
+    SemiColon,
+}
+impl fmt::Display for Token {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        fmt::Debug::fmt(self, f)
     }
 }
